@@ -77,9 +77,12 @@ async function fetchLatestData() {
         gridEl.prepend(...elems);
         
         // Beri tahu Masonry ada elemen baru, lalu setel ulang layout
-        if(masonryInstance) {
-          masonryInstance.prepended(elems);
-          setTimeout(() => masonryInstance.layout(), 50); // Delay kecil agar animasi CSS terproses
+        if (masonryInstance) {
+          masonryInstance.reloadItems();
+          masonryInstance.layout();
+          
+          // Fallback: layout ulang sekali lagi setelah animasi selesai (1 detik)
+          setTimeout(() => masonryInstance.layout(), 1000);
         }
 
         // Update tracking
