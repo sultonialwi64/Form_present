@@ -42,8 +42,9 @@ function createCard(item) {
   const div = document.createElement("div");
   div.className = "aspirasi-card px-2";
   
-  // Ambil inisial nama
-  const initial = item.nama.charAt(0).toUpperCase();
+  // Pastikan nama adalah string untuk menghindari error charAt
+  const namaStr = String(item.nama || "Anonim");
+  const initial = namaStr.charAt(0).toUpperCase();
   const formattedTime = formatWIB(item.timestamp);
   
   div.innerHTML = `
