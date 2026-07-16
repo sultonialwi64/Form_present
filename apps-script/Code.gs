@@ -120,9 +120,18 @@ function doGet(e) {
       // Jika baris kosong, skip
       if (!row[0] && !row[1] && !row[3]) continue;
 
+      let tsString = row[0];
+      if (row[0] instanceof Date) {
+        tsString = Utilities.formatDate(row[0], "GMT+7", "dd MMM yyyy - HH:mm 'WIB'");
+      } else if (typeof row[0] === 'string' && row[0].includes('T')) {
+        try {
+          tsString = Utilities.formatDate(new Date(row[0]), "GMT+7", "dd MMM yyyy - HH:mm 'WIB'");
+        } catch(e) {}
+      }
+
       items.push({
         id: i + 1, // Nomor baris sebagai ID unik
-        timestamp: row[0],
+        timestamp: tsString,
         nama: row[1],
         unit_kerja: row[2],
         saran: row[3]
