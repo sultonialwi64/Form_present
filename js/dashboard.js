@@ -73,13 +73,18 @@ async function fetchLatestData() {
         // Reverse array agar data terbaru berada di paling atas
         const elems = newItems.reverse().map(item => createCard(item));
         
-        // Prepend semua sekaligus sesuai urutan DOM yang benar
-        gridEl.prepend(...elems);
+        // Masukkan elemen persis setelah grid-sizer agar DOM rapi
+        const gridSizer = gridEl.querySelector('.grid-sizer');
+        if (gridSizer) {
+          gridSizer.after(...elems);
+        } else {
+          gridEl.prepend(...elems);
+        }
         
-        // Beri tahu Masonry ada elemen baru dan setel ulang layout secara instan
+        // Hancurkan dan buat ulang Masonry secara instan untuk menjamin layout 100% sempurna
         if (masonryInstance) {
-          masonryInstance.prepended(elems);
-          masonryInstance.layout();
+          masonryInstance.destroy();
+          initMasonry();
         }
 
         // Update tracking
