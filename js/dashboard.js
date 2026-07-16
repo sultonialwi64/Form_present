@@ -66,8 +66,12 @@ function createCard(item) {
   return div;
 }
 
+let isFetching = false;
+
 // Fetch data terbaru
 async function fetchLatestData() {
+  if (isFetching) return;
+  
   if (WEB_APP_URL === "GANTI_DENGAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA_DISINI") {
     statusText.innerText = "Error: Config belum diatur";
     statusText.classList.replace("text-slate-300", "text-red-400");
@@ -75,6 +79,7 @@ async function fetchLatestData() {
   }
 
   try {
+    isFetching = true;
     // Gunakan cursor last_row agar payload sangat kecil
     const res = await fetch(`${WEB_APP_URL}?last_row=${lastRow}`);
     const json = await res.json();
@@ -84,6 +89,10 @@ async function fetchLatestData() {
       
       const newItems = json.data;
       if (newItems.length > 0) {
+        // Update tracking DULUAN sebelum DOM manipulation untuk mencegah duplikasi jika gagal render
+        lastRow = json.last_row;
+        totalItems = json.total;
+        
         // Hilangkan empty state
         if(emptyState) emptyState.style.display = 'none';
 
@@ -104,10 +113,6 @@ async function fetchLatestData() {
           initMasonry();
         }
 
-        // Update tracking
-        lastRow = json.last_row;
-        totalItems = json.total;
-        
         // Update UI Counter dengan animasi
         totalCountEl.innerText = totalItems;
       }
@@ -115,6 +120,8 @@ async function fetchLatestData() {
   } catch (err) {
     console.error("Fetch error:", err);
     statusText.innerText = "LIVE (Koneksi terputus)";
+  } finally {
+    isFetching = false;
   }
 }
 
