@@ -70,15 +70,16 @@ async function fetchLatestData() {
         // Hilangkan empty state
         if(emptyState) emptyState.style.display = 'none';
 
-        // Buat elemen
-        const elems = newItems.map(item => createCard(item));
+        // Reverse array agar data terbaru berada di paling atas
+        const elems = newItems.reverse().map(item => createCard(item));
         
-        // Prepend ke Grid agar yang paling baru di atas
-        elems.forEach(el => gridEl.prepend(el));
+        // Prepend semua sekaligus sesuai urutan DOM yang benar
+        gridEl.prepend(...elems);
         
-        // Beri tahu Masonry ada elemen baru prepended
+        // Beri tahu Masonry ada elemen baru, lalu setel ulang layout
         if(masonryInstance) {
           masonryInstance.prepended(elems);
+          setTimeout(() => masonryInstance.layout(), 50); // Delay kecil agar animasi CSS terproses
         }
 
         // Update tracking
@@ -94,6 +95,37 @@ async function fetchLatestData() {
     statusText.innerText = "LIVE (Koneksi terputus)";
   }
 }
+
+// Reset Data
+window.resetData = async () => {
+  if (!confirm("Yakin ingin menghapus SEMUA data aspirasi? Aksi ini tidak dapat dibatalkan.")) return;
+  
+  try {
+    statusText.innerText = "LIVE (Menghapus...)";
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "clear" }),
+    });
+    const json = await res.json();
+    
+    if (json.status === "success") {
+      alert("Semua data berhasil dihapus dari Spreadsheet!");
+      // Reset UI
+      gridEl.querySelectorAll('.aspirasi-card').forEach(el => el.remove());
+      if(masonryInstance) masonryInstance.layout();
+      lastRow = 0;
+      totalItems = 0;
+      totalCountEl.innerText = totalItems;
+      if(emptyState) emptyState.style.display = 'flex';
+      statusText.innerText = "LIVE (Sinkron)";
+    } else {
+      alert("Gagal menghapus: " + json.message);
+    }
+  } catch(e) {
+    alert("Terjadi kesalahan koneksi.");
+  }
+};
 
 // Jalankan ketika halaman dimuat
 window.addEventListener("DOMContentLoaded", () => {

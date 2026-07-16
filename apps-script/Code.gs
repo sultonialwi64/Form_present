@@ -55,6 +55,25 @@ function doPost(e) {
       } else {
         return respond({ status: "error", message: "Server sedang sibuk (Trafik tinggi). Silakan coba beberapa detik lagi." }, headers, 429);
       }
+    } else if (data.action === "clear") {
+      const lock = LockService.getScriptLock();
+      if (lock.tryLock(10000)) {
+        try {
+          const ss = SpreadsheetApp.getActiveSpreadsheet();
+          let sheet = ss.getSheetByName(SHEET_NAME);
+          if (sheet) {
+            const lastRow = sheet.getLastRow();
+            if (lastRow > 1) {
+              sheet.deleteRows(2, lastRow - 1);
+            }
+          }
+          return respond({ status: "success", message: "Data berhasil dihapus!" }, headers);
+        } finally {
+          lock.releaseLock();
+        }
+      } else {
+        return respond({ status: "error", message: "Server sedang sibuk." }, headers, 429);
+      }
     }
 
     return respond({ status: "error", message: "Action tidak valid" }, headers, 400);
