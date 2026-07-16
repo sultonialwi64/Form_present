@@ -76,17 +76,11 @@ async function fetchLatestData() {
         // Prepend semua sekaligus sesuai urutan DOM yang benar
         gridEl.prepend(...elems);
         
-        // Beri tahu Masonry ada elemen baru menggunakan requestAnimationFrame agar DOM siap
-        requestAnimationFrame(() => {
-          if (masonryInstance) {
-            masonryInstance.prepended(elems);
-            
-            // Layout tambahan setelah CSS animasi (kira-kira 800ms) untuk memastikan
-            setTimeout(() => {
-              if (masonryInstance) masonryInstance.layout();
-            }, 850);
-          }
-        });
+        // Beri tahu Masonry ada elemen baru dan setel ulang layout secara instan
+        if (masonryInstance) {
+          masonryInstance.prepended(elems);
+          masonryInstance.layout();
+        }
 
         // Update tracking
         lastRow = json.last_row;
