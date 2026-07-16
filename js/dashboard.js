@@ -76,14 +76,17 @@ async function fetchLatestData() {
         // Prepend semua sekaligus sesuai urutan DOM yang benar
         gridEl.prepend(...elems);
         
-        // Beri tahu Masonry ada elemen baru, lalu setel ulang layout
-        if (masonryInstance) {
-          masonryInstance.reloadItems();
-          masonryInstance.layout();
-          
-          // Fallback: layout ulang sekali lagi setelah animasi selesai (1 detik)
-          setTimeout(() => masonryInstance.layout(), 1000);
-        }
+        // Beri tahu Masonry ada elemen baru menggunakan requestAnimationFrame agar DOM siap
+        requestAnimationFrame(() => {
+          if (masonryInstance) {
+            masonryInstance.prepended(elems);
+            
+            // Layout tambahan setelah CSS animasi (kira-kira 800ms) untuk memastikan
+            setTimeout(() => {
+              if (masonryInstance) masonryInstance.layout();
+            }, 850);
+          }
+        });
 
         // Update tracking
         lastRow = json.last_row;
@@ -139,4 +142,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Polling setiap 5 detik
   pollInterval = setInterval(fetchLatestData, 5000);
+});
+
+// Perbaiki Masonry jika tab lama tidak dibuka (background tab)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && masonryInstance) {
+    masonryInstance.layout();
+  }
 });
