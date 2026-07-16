@@ -21,6 +21,22 @@ function initMasonry() {
   });
 }
 
+// Format Date ke WIB
+function formatWIB(dateString) {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // fallback
+    
+    const options = { 
+      day: 'numeric', month: 'short', year: 'numeric', 
+      hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' 
+    };
+    return new Intl.DateTimeFormat('id-ID', options).format(date).replace(',', ' -') + ' WIB';
+  } catch (e) {
+    return dateString;
+  }
+}
+
 // Render 1 Kartu Aspirasi
 function createCard(item) {
   const div = document.createElement("div");
@@ -28,6 +44,7 @@ function createCard(item) {
   
   // Ambil inisial nama
   const initial = item.nama.charAt(0).toUpperCase();
+  const formattedTime = formatWIB(item.timestamp);
   
   div.innerHTML = `
     <div class="premium-card-inner rounded-2xl p-7">
@@ -42,7 +59,7 @@ function createCard(item) {
       </div>
       <p class="text-slate-300 leading-relaxed text-sm font-light">${item.saran}</p>
       <div class="mt-5 pt-4 border-t border-slate-700/50 flex justify-end">
-        <span class="text-[10px] text-slate-500 font-medium uppercase tracking-widest">${item.timestamp}</span>
+        <span class="text-[10px] text-slate-500 font-medium uppercase tracking-widest">${formattedTime}</span>
       </div>
     </div>
   `;
