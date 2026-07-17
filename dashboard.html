@@ -11,6 +11,10 @@
   <!-- tsParticles -->
   <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2.12.0/tsparticles.slim.bundle.min.js"></script>
   
+  <!-- jsPDF and AutoTable -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -114,6 +118,10 @@
     </div>
     
     <div class="flex items-center justify-between w-full md:w-auto gap-2 sm:gap-6">
+      <button onclick="downloadPDF()" class="px-2 sm:px-4 py-1.5 sm:py-2 bg-blue-900/50 hover:bg-blue-800 text-blue-200 border border-blue-700/50 rounded-lg text-[10px] sm:text-xs font-semibold tracking-wider transition-colors shrink-0 flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        REKAP PDF
+      </button>
       <button onclick="resetData()" class="px-2 sm:px-4 py-1.5 sm:py-2 bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-700/50 rounded-lg text-[10px] sm:text-xs font-semibold tracking-wider transition-colors shrink-0">RESET DATA</button>
       <div class="flex items-center gap-1.5 sm:gap-2 bg-slate-900/80 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full border border-slate-700/50 shadow-inner shrink-0 ml-auto md:ml-0">
         <div class="pulse-dot"></div>

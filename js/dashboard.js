@@ -174,3 +174,75 @@ document.addEventListener("visibilitychange", () => {
     masonryInstance.layout();
   }
 });
+
+// Download Rekap PDF
+window.downloadPDF = async () => {
+  if (WEB_APP_URL === "GANTI_DENGAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA_DISINI") return;
+  
+  try {
+    statusText.innerText = "LIVE (Menyiapkan PDF...)";
+    
+    // Fetch semua data dari awal (last_row=0)
+    const res = await fetch(`${WEB_APP_URL}?last_row=0`);
+    const json = await res.json();
+    
+    if (json.status === "success") {
+      const data = json.data;
+      if (data.length === 0) {
+        alert("Belum ada data aspirasi untuk direkap.");
+        statusText.innerText = "LIVE (Sinkron)";
+        return;
+      }
+
+      // Inisialisasi jsPDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('landscape');
+      
+      // Header Text
+      doc.setFontSize(16);
+      doc.setTextColor(15, 23, 42); // slate-900
+      doc.text("Rekapitulasi Aspirasi & Masukan", 14, 20);
+      
+      doc.setFontSize(11);
+      doc.setTextColor(100, 116, 139); // slate-500
+      doc.text("FKP PEKPPP 2026 - Dikpora Wonosobo", 14, 28);
+      
+      // Persiapkan Data Tabel
+      const tableData = data.map((item, index) => {
+        const nama = String(item.nama || "Anonim");
+        const unit = String(item.unit_kerja || "-");
+        const saran = String(item.saran || "");
+        const waktu = formatWIB(item.timestamp);
+        return [index + 1, waktu, nama, unit, saran];
+      });
+      
+      // Render Tabel dengan AutoTable
+      doc.autoTable({
+        startY: 35,
+        head: [['No', 'Waktu', 'Nama Lengkap', 'Unit Kerja / Instansi', 'Aspirasi / Masukan']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 4 },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 50 },
+          3: { cellWidth: 50 },
+          4: { cellWidth: 'auto' }
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] }, // slate-50
+        margin: { top: 35, left: 14, right: 14, bottom: 20 }
+      });
+      
+      // Simpan PDF
+      const fileName = `Rekap_Aspirasi_${new Date().getTime()}.pdf`;
+      doc.save(fileName);
+      statusText.innerText = "LIVE (Sinkron)";
+    }
+  } catch(e) {
+    alert("Gagal mengunduh PDF. Pastikan koneksi internet stabil.");
+    statusText.innerText = "LIVE (Sinkron)";
+    console.error("PDF Error:", e);
+  }
+};
